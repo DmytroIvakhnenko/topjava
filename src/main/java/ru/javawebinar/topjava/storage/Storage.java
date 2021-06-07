@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.storage;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface Storage<T> {
 
@@ -8,7 +9,7 @@ public interface Storage<T> {
 
     void update(T t);
 
-    T get(int id);
+    Optional<T> get(int id);
 
     List<T> getAll();
 

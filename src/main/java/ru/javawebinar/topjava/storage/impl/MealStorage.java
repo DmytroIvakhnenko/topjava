@@ -5,36 +5,36 @@ import ru.javawebinar.topjava.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ListMealStorage implements Storage<Meal> {
-    private final List<Meal> storage = new ArrayList<>();
+public class MealStorage implements Storage<Meal> {
+    private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
 
     @Override
     public void add(Meal meal) {
-        if (!storage.contains(meal)) {
-            storage.add(meal);
-        }
+        storage.putIfAbsent(meal.getId(), meal);
     }
 
     @Override
     public void update(Meal meal) {
-        //TODO
+        storage.replace(meal.getId(), meal);
     }
 
     @Override
-    public Meal get(int id) {
-        //TODO
-        return null;
+    public Optional<Meal> get(int id) {
+        return Optional.ofNullable(storage.getOrDefault(id, null));
     }
 
     @Override
     public List<Meal> getAll() {
-        return new ArrayList<>(storage);
+        return new ArrayList<>(storage.values());
     }
 
     @Override
     public void delete(int id) {
-        //TODO
+        storage.remove(id);
     }
 
     @Override
