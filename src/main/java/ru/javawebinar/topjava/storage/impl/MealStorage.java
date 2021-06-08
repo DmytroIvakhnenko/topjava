@@ -8,13 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MealStorage implements Storage<Meal> {
+    private final static AtomicInteger ID_GENERATOR = new AtomicInteger(0);
     private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
 
     @Override
     public void add(Meal meal) {
-        storage.putIfAbsent(meal.getId(), meal);
+        Meal mealWithId = Meal.from(meal, ID_GENERATOR.getAndIncrement());
+        storage.putIfAbsent(mealWithId.getId(), mealWithId);
     }
 
     @Override

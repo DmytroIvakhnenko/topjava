@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.util;
+package ru.javawebinar.topjava.enums;
 
 public enum Action {
     ADD("add"),

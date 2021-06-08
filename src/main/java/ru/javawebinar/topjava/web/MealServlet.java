@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static ru.javawebinar.topjava.util.Action.*;
+import static ru.javawebinar.topjava.enums.Action.*;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
@@ -65,10 +65,10 @@ public class MealServlet extends HttpServlet {
         log.debug("Post request received with action {}", action);
 
         if (ADD.getAction().equals(action)) {
-            storage.add(MealsUtil.createMeal(getDateTime(request), request.getParameter("description"), getAsInt(request, "calories")));
+            storage.add(Meal.of(getDateTime(request), request.getParameter("description"), getAsInt(request, "calories")));
         } else if (EDIT.getAction().equals(action)) {
             storage.get(getAsInt(request, "id"))
-                    .ifPresent(meal -> storage.update(new Meal(meal.getId(), getDateTime(request), request.getParameter("description"), getAsInt(request, "calories"))));
+                    .ifPresent(meal -> storage.update(Meal.from(Meal.of(getDateTime(request), request.getParameter("description"), getAsInt(request, "calories")), meal.getId())));
         } else {
             log.error("Unexpected action value: {}", action);
             throw new IllegalStateException("Unexpected action value: " + action);
