@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MealsUtil {
-    public final static int CALORIES_PER_DAY = 2000;
+    public static final int CALORIES_PER_DAY = 2000;
 
     public static void main(String[] args) {
         List<Meal> meals = getSampleData();
