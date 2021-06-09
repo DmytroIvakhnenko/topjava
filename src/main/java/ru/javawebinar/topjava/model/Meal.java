@@ -17,16 +17,18 @@ public class Meal {
         this.calories = calories;
     }
 
-    public static Meal of(Meal meal, int id) {
-        return new Meal(id, meal.getDateTime(), meal.getDescription(), meal.getCalories());
+    public Meal(LocalDateTime dateTime, String description, int calories) {
+        this.id = null;
+        this.dateTime = dateTime;
+        this.description = description;
+        this.calories = calories;
     }
 
-    public static Meal of(LocalDateTime dateTime, String description, int calories, int id) {
-        return new Meal(id, dateTime, description, calories);
-    }
-
-    public static Meal of(LocalDateTime dateTime, String description, int calories) {
-        return new Meal(null, dateTime, description, calories);
+    public Meal(Meal meal, int id) {
+        this.id = id;
+        this.dateTime = meal.getDateTime();
+        this.description = meal.getDescription();
+        this.calories = meal.getCalories();
     }
 
     public Integer getId() {

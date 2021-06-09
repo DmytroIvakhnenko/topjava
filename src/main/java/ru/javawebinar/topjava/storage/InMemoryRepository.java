@@ -15,7 +15,7 @@ public class InMemoryRepository implements Repository<Meal> {
 
     @Override
     public Meal add(Meal meal) {
-        Meal mealWithId = Meal.of(meal, idGenerator.getAndIncrement());
+        Meal mealWithId = new Meal(meal, idGenerator.getAndIncrement());
         return storage.put(mealWithId.getId(), mealWithId);
     }
 

@@ -1,6 +1,8 @@
 package ru.javawebinar.topjava.web;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import org.slf4j.Logger;
+import ru.javawebinar.topjava.enums.Action;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.storage.Repository;
 import ru.javawebinar.topjava.storage.InMemoryRepository;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,21 +37,30 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
         log.debug("Get request received with action {}", action);
 
-        if (ADD.getAction().equals(action)) {
-            request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
-        } else if (EDIT.getAction().equals(action)) {
-            int id = getAsInt(request, "id");
-            Optional<Meal> meal = storage.get(id);
-            if (meal.isPresent()) {
-                request.setAttribute("meal", meal.get());
-                request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
-            }
-        } else if (DELETE.getAction().equals(action)) {
-            storage.delete(getAsInt(request, "id"));
-            response.sendRedirect("meals");
-        } else {
+        if (Objects.isNull(action) || action.isEmpty()) {
             request.setAttribute("allMeals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
             request.getRequestDispatcher("/meals.jsp").forward(request, response);
+        } else {
+            switch (Action.valueOf(action.toUpperCase())) {
+                case ADD:
+                    request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
+                    break;
+                case EDIT:
+                    int id = getAsInt(request, "id");
+                    Optional<Meal> meal = storage.get(id);
+                    if (meal.isPresent()) {
+                        request.setAttribute("meal", meal.get());
+                        request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
+                    }
+                    break;
+                case DELETE:
+                    storage.delete(getAsInt(request, "id"));
+                    response.sendRedirect("meals");
+                    break;
+                default:
+                    request.setAttribute("allMeals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
+                    request.getRequestDispatcher("/meals.jsp").forward(request, response);
+            }
         }
     }
 
@@ -59,15 +71,14 @@ public class MealServlet extends HttpServlet {
         log.debug("Post request received with action {}", action);
 
         if (ADD.getAction().equals(action)) {
-            storage.add(Meal.of(LocalDateTime.parse(request.getParameter("dateTime")),
+            storage.add(new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
                     request.getParameter("description"),
                     getAsInt(request, "calories")));
         } else if (EDIT.getAction().equals(action)) {
-            storage.update(Meal.of(
+            storage.update(new Meal(getAsInt(request, "id"),
                     LocalDateTime.parse(request.getParameter("dateTime")),
                     request.getParameter("description"),
-                    getAsInt(request, "calories"),
-                    getAsInt(request, "id")));
+                    getAsInt(request, "calories")));
         } else {
             log.error("Unexpected action value: {}", action);
             throw new IllegalStateException("Unexpected action value: " + action);
