@@ -18,17 +18,11 @@ public class Meal {
     }
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
-        this.id = null;
-        this.dateTime = dateTime;
-        this.description = description;
-        this.calories = calories;
+        this(null, dateTime, description, calories);
     }
 
-    public Meal(Meal meal, int id) {
-        this.id = id;
-        this.dateTime = meal.getDateTime();
-        this.description = meal.getDescription();
-        this.calories = meal.getCalories();
+    public Meal(int id, Meal meal) {
+        this(id, meal.getDateTime(), meal.getDescription(), meal.getCalories());
     }
 
     public Integer getId() {

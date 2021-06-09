@@ -1,11 +1,10 @@
 package ru.javawebinar.topjava.web;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.enums.Action;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.storage.Repository;
-import ru.javawebinar.topjava.storage.InMemoryRepository;
+import ru.javawebinar.topjava.storage.InMemoryMealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -27,7 +25,7 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() {
-        storage = new InMemoryRepository();
+        storage = new InMemoryMealRepository();
         MealsUtil.getSampleData()
                 .forEach(storage::add);
     }
@@ -37,30 +35,30 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
         log.debug("Get request received with action {}", action);
 
-        if (Objects.isNull(action) || action.isEmpty()) {
-            request.setAttribute("allMeals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
-            request.getRequestDispatcher("/meals.jsp").forward(request, response);
-        } else {
-            switch (Action.valueOf(action.toUpperCase())) {
-                case ADD:
+        switch (Action.from(action)) {
+            case ADD:
+                request.setAttribute("meal", MealsUtil.getDefaultMeal());
+                request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
+                break;
+            case EDIT:
+                int id = getAsInt(request, "id");
+                Optional<Meal> meal = storage.get(id);
+                if (meal.isPresent()) {
+                    request.setAttribute("meal", meal.get());
                     request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
-                    break;
-                case EDIT:
-                    int id = getAsInt(request, "id");
-                    Optional<Meal> meal = storage.get(id);
-                    if (meal.isPresent()) {
-                        request.setAttribute("meal", meal.get());
-                        request.getRequestDispatcher("/addEditMeal.jsp").forward(request, response);
-                    }
-                    break;
-                case DELETE:
-                    storage.delete(getAsInt(request, "id"));
-                    response.sendRedirect("meals");
-                    break;
-                default:
-                    request.setAttribute("allMeals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY));
-                    request.getRequestDispatcher("/meals.jsp").forward(request, response);
-            }
+                }
+                break;
+            case DELETE:
+                storage.delete(getAsInt(request, "id"));
+                response.sendRedirect("meals");
+                break;
+            default:
+                request.setAttribute("allMeals",
+                        MealsUtil.filteredByStreams(storage.getAll(),
+                                LocalTime.MIN,
+                                LocalTime.MAX,
+                                MealsUtil.CALORIES_PER_DAY));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
         }
     }
 

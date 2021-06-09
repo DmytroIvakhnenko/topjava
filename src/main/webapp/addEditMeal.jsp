@@ -15,20 +15,20 @@
 <br>
 <form method="post" action="meals" enctype="application/x-www-form-urlencoded">
     <input type="hidden" name="action" value="${param.action}">
-    <input type="hidden" name="id" value="${meal != null ? meal.id : null}">
+    <input type="hidden" name="id" value="${meal.id}">
     <dl>
         <dt>DateTime:</dt>
         <dd><input type="datetime-local" name="dateTime" size=40
-                   value="${meal != null ? meal.dateTime : "2020-01-30T08:00"}" required></dd>
+                   value="${meal.dateTime}" required></dd>
     </dl>
     <dl>
         <dt>Description:</dt>
-        <dd><input type="text" name="description" size=40 value="${meal != null ? meal.description : "Default desc"}"
+        <dd><input type="text" name="description" size=40 value="${meal.description}"
                    required></dd>
     </dl>
     <dl>
         <dt>Calories:</dt>
-        <dd><input type="number" name="calories" size=40 value="${meal != null ? meal.calories : 100}" required></dd>
+        <dd><input type="number" name="calories" size=40 value="${meal.calories}" required></dd>
     </dl>
     <button type="submit">Save changes</button>
     <button type="button" onclick="window.history.back()">Cancel</button>

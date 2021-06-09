@@ -47,6 +47,10 @@ public class MealsUtil {
         );
     }
 
+    public static Meal getDefaultMeal() {
+        return new Meal(LocalDateTime.now(), "", 0);
+    }
+
     private static MealTo createTo(Meal meal, boolean excess) {
         return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
