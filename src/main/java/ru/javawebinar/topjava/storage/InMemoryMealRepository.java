@@ -13,7 +13,8 @@ public class InMemoryMealRepository implements Repository<Meal> {
     @Override
     public Meal add(Meal meal) {
         Meal mealWithId = new Meal(idGenerator.getAndIncrement(), meal);
-        return Objects.isNull(storage.put(mealWithId.getId(), mealWithId)) ? mealWithId : null;
+        storage.put(mealWithId.getId(), mealWithId);
+        return mealWithId;
     }
 
     @Override
