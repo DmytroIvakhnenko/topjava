@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 public class InMemoryUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepository.class);
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
-    //3 is used due to 1 and 2 are reserved by default user and admin
-    private final AtomicInteger counter = new AtomicInteger(3);
+    // 1 and 2 are reserved by default user and admin
+    private final AtomicInteger counter = new AtomicInteger(2);
 
     @Override
     public boolean delete(int id) {
-        log.info("delete {}", id);
+        log.info("delete user with id:{}", id);
         return repository.remove(id) != null;
     }
 
@@ -39,13 +39,13 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User get(int id) {
-        log.info("get {}", id);
+        log.info("get user with id:{}", id);
         return repository.get(id);
     }
 
     @Override
     public List<User> getAll() {
-        log.info("getAll");
+        log.info("get all users");
         return repository.values().stream()
                 .sorted(Comparator.comparing(User::getName)
                         .thenComparing(User::getEmail))
@@ -54,9 +54,9 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User getByEmail(String email) {
-        log.info("getByEmail {}", email);
+        log.info("get user by email:{}", email);
         return repository.values().stream()
-                .filter(u -> email.equals(u.getEmail()))
+                .filter(u -> email.compareToIgnoreCase(u.getEmail()) == 0)
                 .findFirst()
                 .orElse(null);
     }

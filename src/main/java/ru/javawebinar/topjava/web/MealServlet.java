@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.to.DateFilter;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletException;
@@ -39,30 +38,36 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String id = request.getParameter("id");
 
-        Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
-                LocalDateTime.parse(request.getParameter("dateTime")),
-                request.getParameter("description"),
-                Integer.parseInt(request.getParameter("calories")), SecurityUtil.authUserId());
-
-        log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        if (meal.isNew()) {
-            mealRestController.create(meal);
+        String userName = request.getParameter("usersSelect");
+        if ("admin".equals(userName)) {
+            SecurityUtil.setAuthUserId(2);
+            log.info("Admin was selected");
         } else {
-            mealRestController.update(meal, SecurityUtil.authUserId());
+            SecurityUtil.setAuthUserId(1);
+            log.info("Default user was selected");
         }
+
+        Optional.ofNullable(request.getParameter("id"))
+                .ifPresent(id -> {
+                    Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
+                            LocalDateTime.parse(request.getParameter("dateTime")),
+                            request.getParameter("description"),
+                            Integer.parseInt(request.getParameter("calories")));
+
+                    log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+                    if (meal.isNew()) {
+                        mealRestController.create(meal);
+                    } else {
+                        mealRestController.update(meal, Integer.parseInt(id));
+                    }
+                });
         response.sendRedirect("meals");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        DateFilter dateFilter = new DateFilter(
-                Optional.ofNullable(request.getParameter("startDate")).filter(s -> !s.isEmpty()).map(LocalDate::parse).orElse(null),
-                Optional.ofNullable(request.getParameter("endDate")).filter(s -> !s.isEmpty()).map(LocalDate::parse).orElse(null),
-                Optional.ofNullable(request.getParameter("startTime")).filter(s -> !s.isEmpty()).map(LocalTime::parse).orElse(null),
-                Optional.ofNullable(request.getParameter("endTime")).filter(s -> !s.isEmpty()).map(LocalTime::parse).orElse(null));
 
         switch (action == null ? "all" : action) {
             case "delete":
@@ -74,16 +79,24 @@ public class MealServlet extends HttpServlet {
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, SecurityUtil.authUserId()) :
+                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         mealRestController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
+            case "filter":
+                log.info("getAllFiltered");
+                request.setAttribute("meals", mealRestController.getAllFilteredByDateTime(
+                        Optional.ofNullable(request.getParameter("startDate")).filter(s -> !s.isEmpty()).map(LocalDate::parse).orElse(null),
+                        Optional.ofNullable(request.getParameter("endDate")).filter(s -> !s.isEmpty()).map(LocalDate::parse).orElse(null),
+                        Optional.ofNullable(request.getParameter("startTime")).filter(s -> !s.isEmpty()).map(LocalTime::parse).orElse(null),
+                        Optional.ofNullable(request.getParameter("endTime")).filter(s -> !s.isEmpty()).map(LocalTime::parse).orElse(null)));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                break;
             case "all":
             default:
                 log.info("getAll");
-                request.setAttribute("meals", mealRestController.getAllFilteredByDateTime(dateFilter));
-                request.setAttribute("filter", dateFilter);
+                request.setAttribute("meals", mealRestController.getAll());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }

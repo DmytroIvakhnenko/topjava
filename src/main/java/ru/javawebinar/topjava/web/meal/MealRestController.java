@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.to.DateFilter;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
@@ -31,21 +30,15 @@ public class MealRestController {
         return MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllFilteredByDate(LocalDate startDate, LocalDate endDate) {
-        log.info("getAllFilteredByDate");
-        return MealsUtil.getTos(service.getAllFilterByDate(SecurityUtil.authUserId(), startDate, endDate),
-                SecurityUtil.authUserCaloriesPerDay());
-    }
-
-    public List<MealTo> getAllFilteredByDateTime(DateFilter dateFilter) {
+    public List<MealTo> getAllFilteredByDateTime(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         log.info("getAllFilteredByDateTime");
         List<Meal> allFilterMealsByDate = service.getAllFilterByDate(SecurityUtil.authUserId(),
-                Optional.ofNullable(dateFilter.getStartDate()).orElse(LocalDate.MIN),
-                Optional.ofNullable(dateFilter.getEndDate()).orElse(LocalDate.MAX));
+                Optional.ofNullable(startDate).orElse(LocalDate.MIN),
+                Optional.ofNullable(endDate).map(d -> d.plusDays(1)).orElse(LocalDate.MAX));
         return MealsUtil.getFilteredTos(allFilterMealsByDate,
                 SecurityUtil.authUserCaloriesPerDay(),
-                Optional.ofNullable(dateFilter.getStartTime()).orElse(LocalTime.MIN),
-                Optional.ofNullable(dateFilter.getEndTime()).orElse(LocalTime.MAX));
+                Optional.ofNullable(startTime).orElse(LocalTime.MIN),
+                Optional.ofNullable(endTime).orElse(LocalTime.MAX));
     }
 
     public Meal get(int id) {
@@ -64,9 +57,9 @@ public class MealRestController {
         service.delete(id, SecurityUtil.authUserId());
     }
 
-    public void update(Meal meal, int userId) {
+    public void update(Meal meal, int mealId) {
         log.info("update {} with id={}", meal, meal.getId());
-        assureIdConsistent(meal, meal.getId());
-        service.update(meal, userId);
+        assureIdConsistent(meal, mealId);
+        service.update(meal, SecurityUtil.authUserId());
     }
 }

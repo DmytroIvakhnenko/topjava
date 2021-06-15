@@ -52,12 +52,13 @@
     </table>
 </section>
 <form method="get" action="meals">
+    <input type="hidden" name="action" value="filter">
     <dl>
         <dt>Start date (edge included):</dt>
         <dd><input type="date" value="${filter.startDate}" name="startDate"></dd>
     </dl>
     <dl>
-        <dt>End date (edge not included):</dt>
+        <dt>End date (edge included):</dt>
         <dd><input type="date" value="${filter.endDate}" name="endDate"></dd>
     </dl>
     <dl>
