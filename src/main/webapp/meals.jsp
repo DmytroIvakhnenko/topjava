@@ -19,6 +19,7 @@
 <body>
 <section>
     <h3><a href="index.html">Home</a></h3>
+    <h3><a href="users">Users</a></h3>
     <hr/>
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
@@ -34,7 +35,7 @@
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
-            <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
@@ -50,5 +51,24 @@
         </c:forEach>
     </table>
 </section>
+<form method="get" action="meals">
+    <dl>
+        <dt>Start date (edge included):</dt>
+        <dd><input type="date" value="${filter.startDate}" name="startDate"></dd>
+    </dl>
+    <dl>
+        <dt>End date (edge not included):</dt>
+        <dd><input type="date" value="${filter.endDate}" name="endDate"></dd>
+    </dl>
+    <dl>
+        <dt>Start tile (edge included):</dt>
+        <dd><input type="time" value="${filter.startTime}" name="startTime"></dd>
+    </dl>
+    <dl>
+        <dt>End time (edge not included):</dt>
+        <dd><input type="time" value="${filter.endTime}" name="endTime"></dd>
+    </dl>
+    <button type="submit">Filter</button>
+</form>
 </body>
 </html>
