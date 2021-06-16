@@ -33,6 +33,6 @@ public class UserServlet extends HttpServlet {
             SecurityUtil.setAuthUserId(1);
             log.info("Default user was selected");
         }
-        response.sendRedirect("users");
+        response.sendRedirect("meals");
     }
 }

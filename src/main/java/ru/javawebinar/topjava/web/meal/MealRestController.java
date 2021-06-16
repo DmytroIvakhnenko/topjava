@@ -20,7 +20,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
 public class MealRestController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private MealService service;
@@ -57,9 +57,9 @@ public class MealRestController {
         service.delete(id, SecurityUtil.authUserId());
     }
 
-    public void update(Meal meal, int mealId) {
+    public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, meal.getId());
-        assureIdConsistent(meal, mealId);
+        assureIdConsistent(meal, id);
         service.update(meal, SecurityUtil.authUserId());
     }
 }

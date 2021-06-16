@@ -39,29 +39,20 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
-        String userName = request.getParameter("usersSelect");
-        if ("admin".equals(userName)) {
-            SecurityUtil.setAuthUserId(2);
-            log.info("Admin was selected");
-        } else {
-            SecurityUtil.setAuthUserId(1);
-            log.info("Default user was selected");
+        String id = request.getParameter("id");
+        if (Objects.nonNull(id)) {
+            Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
+                    LocalDateTime.parse(request.getParameter("dateTime")),
+                    request.getParameter("description"),
+                    Integer.parseInt(request.getParameter("calories")));
+
+            log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+            if (meal.isNew()) {
+                mealRestController.create(meal);
+            } else {
+                mealRestController.update(meal, Integer.parseInt(id));
+            }
         }
-
-        Optional.ofNullable(request.getParameter("id"))
-                .ifPresent(id -> {
-                    Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
-                            LocalDateTime.parse(request.getParameter("dateTime")),
-                            request.getParameter("description"),
-                            Integer.parseInt(request.getParameter("calories")));
-
-                    log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-                    if (meal.isNew()) {
-                        mealRestController.create(meal);
-                    } else {
-                        mealRestController.update(meal, Integer.parseInt(id));
-                    }
-                });
         response.sendRedirect("meals");
     }
 

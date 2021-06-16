@@ -55,19 +55,19 @@
     <input type="hidden" name="action" value="filter">
     <dl>
         <dt>Start date (edge included):</dt>
-        <dd><input type="date" value="${filter.startDate}" name="startDate"></dd>
+        <dd><input type="date" value="${param.startDate}" name="startDate"></dd>
     </dl>
     <dl>
         <dt>End date (edge included):</dt>
-        <dd><input type="date" value="${filter.endDate}" name="endDate"></dd>
+        <dd><input type="date" value="${param.endDate}" name="endDate"></dd>
     </dl>
     <dl>
         <dt>Start tile (edge included):</dt>
-        <dd><input type="time" value="${filter.startTime}" name="startTime"></dd>
+        <dd><input type="time" value="${param.startTime}" name="startTime"></dd>
     </dl>
     <dl>
         <dt>End time (edge not included):</dt>
-        <dd><input type="time" value="${filter.endTime}" name="endTime"></dd>
+        <dd><input type="time" value="${param.endTime}" name="endTime"></dd>
     </dl>
     <button type="submit">Filter</button>
 </form>

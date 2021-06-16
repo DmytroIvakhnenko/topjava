@@ -38,17 +38,18 @@ public class InMemoryMealRepository implements MealRepository {
     private Meal update(Meal meal, int userId) {
         // handle case: update, but not present in storage
         log.info("update {}", meal);
-        return Optional.ofNullable(this.get(meal.getId(), userId))
-                .map(m -> {
-                    repository.get(userId).put(meal.getId(), meal);
-                    return meal;
-                }).orElse(null);
+
+        return repository.computeIfPresent(userId, (id, map) -> {
+            if (map.containsKey(meal.getId())) {
+                map.put(meal.getId(), meal);
+            }
+            return map;
+        }) != null ? meal : null;
     }
 
     private Meal create(Meal meal, int userId) {
         log.info("create {}", meal);
         meal.setId(counter.incrementAndGet());
-        meal.setUserId(userId);
 
         Optional.ofNullable(repository.get(userId))
                 .orElseGet(() -> {
@@ -91,8 +92,9 @@ public class InMemoryMealRepository implements MealRepository {
         return Optional.ofNullable(repository.get(userId))
                 .map(m -> m.values().stream()
                         .filter(filter)
+                        .sorted(Comparator.comparing(Meal::getDateTime).reversed())
                         .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+                .orElse(Collections.emptyList());
     }
 }
 
