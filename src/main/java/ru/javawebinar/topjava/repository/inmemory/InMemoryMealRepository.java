@@ -38,13 +38,11 @@ public class InMemoryMealRepository implements MealRepository {
     private Meal update(Meal meal, int userId) {
         // handle case: update, but not present in storage
         log.info("update {}", meal);
-
-        return repository.computeIfPresent(userId, (id, map) -> {
-            if (map.containsKey(meal.getId())) {
-                map.put(meal.getId(), meal);
-            }
-            return map;
-        }) != null ? meal : null;
+        return Optional.ofNullable(this.get(meal.getId(), userId))
+                .map(m -> {
+                    repository.get(userId).put(meal.getId(), meal);
+                    return meal;
+                }).orElse(null);
     }
 
     private Meal create(Meal meal, int userId) {
